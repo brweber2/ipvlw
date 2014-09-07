@@ -43,15 +43,17 @@ type Routable interface {
 }
 
 type ControlPlane interface {
-	Routable
+//	Routable
 
-
-
+	Runnable
+	AddNic(r Router) error
+	Routers() []Router
 }
 
 type DataPlane interface {
-	Start() error
-	Stop() error
+	Runnable
+//	Start() error
+//	Stop() error
 }
 
 type Nic interface {
