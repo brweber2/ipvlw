@@ -46,8 +46,9 @@ type ControlPlane interface {
 //	Routable
 
 	Runnable
-	AddNic(r Router) error
-	Routers() []Router
+	AddNic(r *Router) error
+	Routers() []*Router
+	AddRoute(s *System, b *ipvlw.Block) error
 }
 
 type DataPlane interface {
