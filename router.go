@@ -165,35 +165,41 @@ func simulateRouting() {
 
 	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
 
-	//
-//	// define some computers
-//	nic_1 := MakeNic()
-//	nic_2 := MakeNic()
-//	nic_3 := MakeNic()
-//	nic_4 := MakeNic()
-//	nic_5 := MakeNic()
-//	nic_6 := MakeNic()
-//	nic_7 := MakeNic()
-//	nic_8 := MakeNic()
-//	nic_9 := MakeNic()
-//	nic_10 := MakeNic()
-//	nic_11 := MakeNic()
-//	nic_12 := MakeNic()
-//	nic_13 := MakeNic()
-//	nic_14 := MakeNic()
-//	nic_15 := MakeNic()
-//	nic_16 := MakeNic()
-//
-//	// "dhcp" will assing computers to routers (as if they were physically plugged in there)
-//	// and it will assign IPvLW addresses to the network interfaces
-//	dhcp := MakeDhcp(router_1, router_2, router_3, router_4, router_5)
-//
-//	// plug computers into the network
-//	dhcp.ConnectTo(router_1, nic_1, nic_2, nic_3, nic_4)
-//	dhcp.ConnectTo(router_2, nic_5, nic_6, nic_7)
-//	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
-//	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
-//	dhcp.ConnectTo(router_5, nic_15, nic_16)
+	// define some computers
+	nic_1 := rpvlw.MakeNic()
+	nic_2 := rpvlw.MakeNic()
+	nic_3 := rpvlw.MakeNic()
+	nic_4 := rpvlw.MakeNic()
+	nic_5 := rpvlw.MakeNic()
+	nic_6 := rpvlw.MakeNic()
+	nic_7 := rpvlw.MakeNic()
+	nic_8 := rpvlw.MakeNic()
+	nic_9 := rpvlw.MakeNic()
+	nic_10 := rpvlw.MakeNic()
+	nic_11 := rpvlw.MakeNic()
+	nic_12 := rpvlw.MakeNic()
+	nic_13 := rpvlw.MakeNic()
+	nic_14 := rpvlw.MakeNic()
+	nic_15 := rpvlw.MakeNic()
+	nic_16 := rpvlw.MakeNic()
+
+	log.Printf("making nics %#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v \n",
+	nic_1, nic_2, nic_3, nic_4, nic_5, nic_6, nic_7, nic_8, nic_9, nic_10, nic_11, nic_12, nic_13,
+	nic_14, nic_15, nic_16)
+
+	// "dhcp" will assing computers to routers (as if they were physically plugged in there)
+	// and it will assign IPvLW addresses to the network interfaces
+	dhcp := rpvlw.MakeDhcp(router_1, router_2, router_3, router_4, router_5)
+
+	log.Printf("dhcp: %#v\n", dhcp)
+
+
+	// plug computers into the network
+	dhcp.ConnectTo(router_1, nic_1, nic_2, nic_3, nic_4)
+	dhcp.ConnectTo(router_2, nic_5, nic_6, nic_7)
+	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
+	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
+	dhcp.ConnectTo(router_5, nic_15, nic_16)
 //
 //	// send a message from computer 2 to computer 4 (same router - stays internal)
 //	to := nic_15.Address()

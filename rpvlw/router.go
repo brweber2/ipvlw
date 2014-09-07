@@ -1,6 +1,9 @@
 package rpvlw
 
-import "github.com/brweber2/interwebs/ipvlw"
+import (
+	"github.com/brweber2/interwebs/ipvlw"
+//	"log"
+)
 
 type Router struct {
 	System System
@@ -49,6 +52,7 @@ type ControlPlane interface {
 	AddNic(r *Router) error
 	Routers() []*Router
 	AddRoute(s *System, b *ipvlw.Block) error
+	AddComputer(c Nic) error
 }
 
 type DataPlane interface {
@@ -59,10 +63,14 @@ type DataPlane interface {
 
 type Nic interface {
 	Address() ipvlw.Address
-	Send(m ipvlw.Message) (ipvlw.Message, error)
-	Listen() ([]ipvlw.Message, error)
+//	Send(m ipvlw.Message) (ipvlw.Message, error)
+//	Listen() ([]ipvlw.Message, error)
 }
 
 type Dhcp interface {
-	Register(n Nic) (Router, ipvlw.Address, error)
+//	Register(n Nic) (Router, ipvlw.Address, error)
+	ConnectTo(r *Router, n ... Nic) error
 }
+
+
+

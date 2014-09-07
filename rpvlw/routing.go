@@ -7,7 +7,7 @@ import (
 )
 
 func MakeAndStartRouter(s int) *Router {
-	controlPlane := RouterControlPlane{nil, make([]*Router, 0, 16), make(map[*ipvlw.Block]*System), make(map[*System]*Router)}
+	controlPlane := RouterControlPlane{nil, make([]*Router, 0, 16), make(map[*ipvlw.Block]*System), make(map[*System]*Router), make([]Nic, 0, 16)}
 	r := Router{System{uint8(s)}, &controlPlane, RouterDataPlane{}}
 	controlPlane.Router = &r
 	r.Start()
@@ -21,13 +21,19 @@ func (r Router) Start() {
 
 type RouterControlPlane struct {
 	Router *Router
-	Nics []*Router
+	Nics []*Router // todo rename me!
 	Routes map[*ipvlw.Block]*System
 	Interfaces map[*System]*Router
+	Computers []Nic
 }
 
 func (r *RouterControlPlane) String() string {
 	return fmt.Sprintf("router\n\tsystem: %v\n\trouters: %#v\n\tnics: %#v\n\troutes: %#v\n\t", r.Router.System, r.Routes, r.Nics, r.Interfaces)
+}
+
+func (r *RouterControlPlane) AddComputer(n Nic) error {
+	r.Computers = append(r.Computers, n)
+	return nil
 }
 
 type RouterDataPlane struct {
@@ -94,3 +100,33 @@ func (r Router) Announce(b *ipvlw.Block) error {
 	}
 	return nil
 }
+
+type Computer struct {
+	Addr ipvlw.Address
+}
+
+func (c *Computer) Address() ipvlw.Address {
+	return c.Addr
+}
+
+func MakeNic() Nic {
+	log.Printf("making a nic")
+	return &Computer{ipvlw.Address{0}}
+}
+
+type RouterDhcp struct {
+	Routers []*Router
+}
+
+func MakeDhcp(routers ... *Router) Dhcp {
+	dhcp := RouterDhcp{make([]*Router, 0, 16)}
+	return dhcp
+}
+
+func (d RouterDhcp) ConnectTo(r *Router, nics ... Nic) error {
+	for _, nic := range(nics) {
+		r.ControlPlane.AddComputer(nic)
+	}
+	return nil
+}
+
