@@ -3,6 +3,7 @@ package rpvlw
 import (
 	"fmt"
 	"log"
+	"github.com/brweber2/interwebs/ipvlw"
 )
 
 func MakeAndStartRouter(s int) Router {
@@ -68,4 +69,9 @@ func (r *RouterControlPlane) AddNic(rtr Router) error {
 
 func (r *RouterControlPlane) Routers() []Router {
 	return r.Nics
+}
+
+func (r Router) Announce(b ipvlw.Block) error {
+	log.Printf("router %v originating %v\n", r.System, b)
+	return nil
 }

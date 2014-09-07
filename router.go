@@ -6,6 +6,7 @@ import (
 	"fmt"
 //	"log"
 	"log"
+	"github.com/brweber2/interwebs/ipvlw"
 )
 
 //type RouterNic struct {
@@ -135,9 +136,35 @@ func simulateRouting() {
 	fmt.Printf("router 3 connected to %d\n", len(router_3.ControlPlane.Routers()))
 	fmt.Printf("router 4 connected to %d\n", len(router_4.ControlPlane.Routers()))
 	fmt.Printf("router 5 connected to %d\n", len(router_5.ControlPlane.Routers()))
-//
-//	// announce some routes
-//
+
+	// announce some routes
+	err = router_1.Announce(ipvlw.Block{ipvlw.Address{4}, 6})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+	err = router_1.Announce(ipvlw.Block{ipvlw.Address{20}, 6})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+	err = router_2.Announce(ipvlw.Block{ipvlw.Address{40}, 6})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+	err = router_3.Announce(ipvlw.Block{ipvlw.Address{60}, 6})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+	err = router_4.Announce(ipvlw.Block{ipvlw.Address{100}, 4})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+	err = router_5.Announce(ipvlw.Block{ipvlw.Address{200}, 6})
+	if err != nil {
+		log.Fatalf("Unable to announce routes with error %v\n", err)
+	}
+
+
+	//
 //	// define some computers
 //	nic_1 := MakeNic()
 //	nic_2 := MakeNic()
