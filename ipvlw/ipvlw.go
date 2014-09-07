@@ -1,5 +1,9 @@
 package ipvlw
 
+import (
+	"math/rand"
+)
+
 type Address struct {
 	Address uint8 // this is a huge interweb!
 }
@@ -23,6 +27,7 @@ type Message interface {
 type TextMessage struct {
 	FromAddr Address
 	ToAddr Address
+	Identifier uint64
 	Body string
 }
 
@@ -32,6 +37,10 @@ func (t TextMessage) From() Address {
 
 func (t TextMessage) To() Address {
 	return t.ToAddr
+}
+
+func (t TextMessage) Id() uint64 {
+	return t.Identifier
 }
 
 func (t TextMessage) Payload() string {
@@ -47,4 +56,15 @@ func (b Block) Contains(a Address) bool {
 
 func Mask(bits uint8) uint8 {
 	return 0xFF << (8-bits)
+}
+
+func GenerateId() uint64 {
+	l := rand.Uint32()
+	r := rand.Uint32()
+
+	a := uint64(r)
+	b := uint64(l) << 32
+
+	id := a | b
+	return id
 }

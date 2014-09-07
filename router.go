@@ -79,6 +79,9 @@ func main() {
 	io := make(chan ipvlw.Message)
 	routerNic := RouterNic{Addr: ipvlw.Address{1}, IO: io}
 	fmt.Println(routerNic)
+	hello := ipvlw.TextMessage{FromAddr: ipvlw.Address{3}, ToAddr: ipvlw.Address{4}, Identifier: 72, Body: "yeah"}
+//	io <-hello
+	routerNic.Send(hello)
 //	router := rpvlw.Router{System: System{15}, ControlPlane: , DataPlane: }
 }
 
