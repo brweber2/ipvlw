@@ -18,20 +18,25 @@ func (a Announcement) String() string {
 	return fmt.Sprintf("%d:%v", a.System.Identifier, a.Blocks)
 }
 
-type AnnoucementMessage struct {
+type AnnouncementMessage struct {
 	FromAddr ipvlw.Address
 	ToAddr ipvlw.Address
+	Identifier uint64
 	Announcement Announcement
 }
 
-func (t AnnoucementMessage) From() ipvlw.Address {
+func (t AnnouncementMessage) From() ipvlw.Address {
 return t.FromAddr
 }
 
-func (t AnnoucementMessage) To() ipvlw.Address {
+func (t AnnouncementMessage) To() ipvlw.Address {
 	return t.ToAddr
 }
 
-func (t AnnoucementMessage) Payload() string {
+func (t AnnouncementMessage) Id() uint64 {
+	return t.Identifier
+}
+
+func (t AnnouncementMessage) Payload() string {
 	return t.Announcement.String()
 }
