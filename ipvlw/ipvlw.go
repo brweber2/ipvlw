@@ -2,6 +2,8 @@ package ipvlw
 
 import (
 	"math/rand"
+	"fmt"
+	"log"
 )
 
 type Address struct {
@@ -51,6 +53,7 @@ func (b Block) Contains(a Address) bool {
 	bits := b.Bits
 	s := b.Start.Address & Mask(bits)
 	e := a.Address & Mask(bits)
+	log.Printf("comparing %v and %v\n", s, e)
 	return s == e
 }
 
@@ -67,4 +70,20 @@ func GenerateId() uint64 {
 
 	id := a | b
 	return id
+}
+
+func MakeResponse( m Message, resp string) (Message, error) {
+	f := m.From()
+	if &f == nil {
+		return nil, fmt.Errorf("No from address on original message %v\n", m)
+	}
+	t := m.To()
+	if &t == nil {
+		return nil, fmt.Errorf("No to address on original message %v\n", m)
+	}
+	i := m.Id()
+	if &i == nil {
+		return nil, fmt.Errorf("No id on original message %v\n", m)
+	}
+	return TextMessage{f, t, i, resp}, nil
 }

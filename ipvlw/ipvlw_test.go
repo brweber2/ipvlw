@@ -68,6 +68,8 @@ func TestGenerateId(t *testing.T) {
 }
 
 func TestMask(t *testing.T) {
+	// todo test outside valid range (ie 0 > n > 8)
+
 	                                      // dec   binary    cidr
 	expected_0 := uint8(256 - (1<<(8-0))) // 0     00000000  /0
 	expected_1 := uint8(256 - (1<<(8-1))) // 128   10000000  /1
@@ -106,4 +108,139 @@ func maskExpect(i int, m, e uint8, t *testing.T) {
 	if m != e {
 		t.Errorf("mask %d is not created properly. Expected: %d Actual %d\n", i, e, m)
 	}
+}
+
+func TestBlockContainsAddress(t *testing.T) {
+	// every byte is valid in a slash 0
+	slash_0 := Block{Address{0}, 0}
+	EnsureBlockContains(slash_0, 0, t)
+	EnsureBlockContains(slash_0, 1, t)
+	EnsureBlockContains(slash_0, 2, t)
+	EnsureBlockContains(slash_0, 3, t)
+	// ...
+	EnsureBlockContains(slash_0, 127, t)
+	EnsureBlockContains(slash_0, 128, t)
+	EnsureBlockContains(slash_0, 129, t)
+
+	// ...
+	EnsureBlockContains(slash_0, 253, t)
+	EnsureBlockContains(slash_0, 254, t)
+	EnsureBlockContains(slash_0, 255, t)
+
+	slash_8 := Block{Address{17}, 8}
+
+	EnsureBlockDoesNOTContain(slash_8, 0, t)
+	EnsureBlockDoesNOTContain(slash_8, 1, t)
+	EnsureBlockDoesNOTContain(slash_8, 2, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_8, 15, t)
+	EnsureBlockDoesNOTContain(slash_8, 16, t)
+	EnsureBlockContains(slash_8, 17, t)
+	EnsureBlockDoesNOTContain(slash_8, 18, t)
+	EnsureBlockDoesNOTContain(slash_8, 19, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_8, 254, t)
+	EnsureBlockDoesNOTContain(slash_8, 255, t)
+
+	slash_7 := Block{Address{8}, 7}
+
+	EnsureBlockDoesNOTContain(slash_7, 0, t)
+	EnsureBlockDoesNOTContain(slash_7, 1, t)
+	EnsureBlockDoesNOTContain(slash_7, 2, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_7, 6, t)
+	EnsureBlockDoesNOTContain(slash_7, 7, t)
+	EnsureBlockContains(slash_7, 8, t)
+	EnsureBlockContains(slash_7, 9, t)
+	EnsureBlockDoesNOTContain(slash_7, 10, t)
+	EnsureBlockDoesNOTContain(slash_7, 11, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_7, 254, t)
+	EnsureBlockDoesNOTContain(slash_7, 255, t)
+
+	slash_5 := Block{Address{168}, 5}
+
+	EnsureBlockDoesNOTContain(slash_5, 0, t)
+	EnsureBlockDoesNOTContain(slash_5, 1, t)
+	EnsureBlockDoesNOTContain(slash_5, 2, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_5, 164, t)
+	EnsureBlockDoesNOTContain(slash_5, 165, t)
+	EnsureBlockDoesNOTContain(slash_5, 166, t)
+	EnsureBlockDoesNOTContain(slash_5, 167, t)
+	EnsureBlockContains(slash_5, 168, t)
+	EnsureBlockContains(slash_5, 169, t)
+	EnsureBlockContains(slash_5, 170, t)
+	EnsureBlockContains(slash_5, 171, t)
+	EnsureBlockContains(slash_5, 172, t)
+	EnsureBlockContains(slash_5, 173, t)
+	EnsureBlockContains(slash_5, 174, t)
+	EnsureBlockContains(slash_5, 175, t)
+	EnsureBlockDoesNOTContain(slash_5, 176, t)
+	EnsureBlockDoesNOTContain(slash_5, 177, t)
+	EnsureBlockDoesNOTContain(slash_5, 178, t)
+	// ...
+	EnsureBlockDoesNOTContain(slash_5, 254, t)
+	EnsureBlockDoesNOTContain(slash_5, 255, t)
+}
+
+func EnsureBlockContains(b Block, a int, t *testing.T) {
+	if ! b.Contains(Address{uint8(a)}) {
+		t.Errorf("Block %v should contain %v\n", b, a)
+	}
+}
+
+func EnsureBlockDoesNOTContain(b Block, a int, t *testing.T) {
+	if b.Contains(Address{uint8(a)}) {
+		t.Errorf("Block %v should NOT contain %v\n", b, a)
+	}
+}
+
+func TestMakeResponse(t *testing.T) {
+	// MESSAGES
+	valid := TextMessage{Address{1}, Address{2}, 3, "valid"}
+//	no_from := TextMessage{nil, Address{2}, 3, "no from"}
+//	no_to := TextMessage{Address{1}, nil, 3, "no to"}
+//	no_id := TextMessage{Address{1}, Address{2}, nil, "no id"}
+	no_message := TextMessage{Address{1}, Address{2}, 3, ""}
+
+	// RESPONSES
+	valid_response := TextMessage{Address{1}, Address{2}, 3, "valid response"}
+	no_message_response := TextMessage{Address{1}, Address{2}, 3, "no message response"}
+
+	// all filled out
+	r_valid, err := MakeResponse(valid, "valid response")
+	if err != nil {
+		t.Errorf("Did not make proper response for a valid message. Error %v\n", err)
+	}
+	if r_valid != valid_response {
+		t.Errorf("Did not make proper response for a valid message. Expected %v Actual %v\n", valid_response, r_valid)
+	}
+
+	// no message
+	r_no_message, err := MakeResponse(no_message, "no message response")
+	if err != nil {
+		t.Errorf("Did not make proper response for a 'no message' message. Error %v\n", err)
+	}
+	if r_no_message != no_message_response {
+		t.Errorf("Did not make proper response for a 'no message' message. Expected %v Actual %v\n", no_message_response, r_no_message)
+	}
+
+//	// no from
+//	_, err := MakeResponse(no_from, "ignored")
+//	if err == nil {
+//		t.Errorf("Did not get an error when making a response to a message with no from.\n")
+//	}
+//
+//	// no to
+//	_, err := MakeResponse(no_to, "ignored")
+//	if err == nil {
+//		t.Errorf("Did not get an error when making a response to a message with no to.\n")
+//	}
+//
+//	// no id
+//	_, err := MakeResponse(no_id, "ignored")
+//	if err == nil {
+//		t.Errorf("Did not get an error when making a response to a message with no id.\n")
+//	}
 }
