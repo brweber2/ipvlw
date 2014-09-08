@@ -68,6 +68,7 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 	if err != nil {
 		return err
 	}
+	n.addr(addr)
 	r.Addresses[addr] = n
 	r.Computers = append(r.Computers, n)
 	return nil
@@ -147,6 +148,10 @@ func (r Router) Announce(b *ipvlw.Block) error {
 
 type Computer struct {
 	Addr ipvlw.Address
+}
+
+func (c *Computer) addr(a *ipvlw.Address) {
+	c.Addr = *a
 }
 
 func (c *Computer) Address() ipvlw.Address {

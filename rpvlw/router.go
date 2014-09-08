@@ -26,6 +26,7 @@ type DataPlane interface {
 
 type Nic interface {
 	Address() ipvlw.Address
+	addr(a *ipvlw.Address)
 }
 
 type Dhcp interface {
