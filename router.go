@@ -125,7 +125,7 @@ func simulateRouting() {
 	to := nic_15.Address()
 	from := nic_2.Address()
 
-	nic_15.Callback(func(n rpvlw.Nic, m ipvlw.Message) error {
+	nic_15.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
 		log.Printf("recieved message %v\n", m)
 		return nil
 	})

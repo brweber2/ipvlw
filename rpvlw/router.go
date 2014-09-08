@@ -13,6 +13,12 @@ type Router struct {
 type ControlPlane interface {
 	Runnable
 
+	isLocal(a ipvlw.Address) bool
+	nicFor(a ipvlw.Address) (Nic, error)
+	routeFor(a ipvlw.Address) bool
+	systemFor(a ipvlw.Address) (System, error)
+	routerFor(s System) (Router, error)
+
 	AddNic(r *Router) error // todo rename!
 	Routers() []*Router
 	AddRoute(s *System, b *ipvlw.Block) error
@@ -24,16 +30,17 @@ type DataPlane interface {
 	Runnable
 
 	Send(ipvlw.Message) error
-	Callback(func(Nic, ipvlw.Message) error) error
 }
 
 type Nic interface {
-	Router() *Router
-	rtr(*Router)
-	Address() ipvlw.Address
 	addr(a *ipvlw.Address)
+	rtr(*Router)
+	handler() (func(Nic,ipvlw.Message) error, error)
+
+	Router() *Router
+	Address() ipvlw.Address
 	Send(ipvlw.Message) error
-	Callback(func(n Nic, m ipvlw.Message) error) error
+	RegisterCallback(func(n Nic, m ipvlw.Message) error) error
 }
 
 type Dhcp interface {
