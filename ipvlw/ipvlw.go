@@ -57,6 +57,15 @@ func (b Block) Contains(a Address) bool {
 	return s == e
 }
 
+func (b Block) Addresses() []*Address {
+	answer := make([]*Address, 1 << (8 - b.Bits))
+	var i uint8
+	for i = 0; i < (1 << (8 - b.Bits)); i++ {
+		answer[i] = &Address{b.Start.Address + i}
+	}
+	return answer
+}
+
 func Mask(bits uint8) uint8 {
 	return 0xFF << (8-bits)
 }

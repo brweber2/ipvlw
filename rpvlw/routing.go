@@ -7,7 +7,16 @@ import (
 )
 
 func MakeAndStartRouter(s int) *Router {
-	controlPlane := RouterControlPlane{nil, make([]*Router, 0, 16), make(map[*ipvlw.Block]*System), make(map[*System]*Router), make([]Nic, 0, 16), make(map[*ipvlw.Address]Nic)}
+	controlPlane := RouterControlPlane{
+		Router: nil,
+		LocalBlocks: make([]*ipvlw.Block, 0, 256),
+		Computers: make([]Nic, 0, 16),
+		Addresses: make(map[*ipvlw.Address]Nic),
+		Nics: make([]*Router, 0, 16),
+		Routes: make(map[*ipvlw.Block]*System),
+		Interfaces: make(map[*System]*Router),
+	}
+
 	r := Router{System{uint8(s)}, &controlPlane, RouterDataPlane{}}
 	controlPlane.Router = &r
 	r.Start()
@@ -21,23 +30,45 @@ func (r Router) Start() {
 
 type RouterControlPlane struct {
 	Router *Router
+	// local to this network
+	LocalBlocks []*ipvlw.Block
+	Computers []Nic
+	Addresses map[*ipvlw.Address]Nic
+	// external to this network
 	Nics []*Router // todo rename me!
 	Routes map[*ipvlw.Block]*System
 	Interfaces map[*System]*Router
-	Computers []Nic
-	Addresses map[*ipvlw.Address]Nic
 }
 
 func (r *RouterControlPlane) String() string {
 	return fmt.Sprintf("router\n\tsystem: %v\n\trouters: %#v\n\tnics: %#v\n\troutes: %#v\n\t", r.Router.System, r.Routes, r.Nics, r.Interfaces)
 }
 
-func (r *RouterControlPlane) UnusedAddress() (ipvlw.Address, error) {
-	return ipvlw.Address{}, nil
+func (r *RouterControlPlane) AddressInUse(a *ipvlw.Address) bool {
+	if _,ok := r.Addresses[a]; ok {
+		return true
+	}
+	return false
+}
+
+func (r *RouterControlPlane) UnusedAddress() (*ipvlw.Address, error) {
+	for _, block := range(r.LocalBlocks) {
+		for _, addr := range(block.Addresses()) {
+			if ! r.AddressInUse(addr) {
+				return addr, nil
+			}
+		}
+	}
+	return &ipvlw.Address{}, fmt.Errorf("Unable to find an available ip address in %#v\n", r)
 }
 
 func (r *RouterControlPlane) AddComputer(n Nic) error {
 	// find unused ip address
+	addr, err := r.UnusedAddress()
+	if err != nil {
+		return err
+	}
+	r.Addresses[addr] = n
 	r.Computers = append(r.Computers, n)
 	return nil
 }
@@ -98,6 +129,9 @@ func (r *RouterControlPlane) Routers() []*Router {
 }
 
 func (r *RouterControlPlane) AddRoute(s *System, b *ipvlw.Block) error {
+	if s.Identifier == r.Router.System.Identifier {
+		r.LocalBlocks = append(r.LocalBlocks, b)
+	}
 	r.Routes[b] = s
 	return nil
 }
@@ -135,7 +169,10 @@ func MakeDhcp(routers ... *Router) Dhcp {
 
 func (d RouterDhcp) ConnectTo(r *Router, nics ... Nic) error {
 	for _, nic := range(nics) {
-		r.ControlPlane.AddComputer(nic)
+		err := r.ControlPlane.AddComputer(nic)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

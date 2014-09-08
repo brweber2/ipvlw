@@ -272,3 +272,19 @@ func TestMakeResponse(t *testing.T) {
 //		t.Errorf("Did not get an error when making a response to a message with no id.\n")
 //	}
 }
+
+func TestBlockAddresses(t *testing.T) {
+	block := Block{Address{148}, 6}
+	addrs := block.Addys()
+	for _, addr := range(addrs) {
+		log.Printf("block contains %v\n", addr)
+	}
+}
+
+func TestBlockPointerAddresses(t *testing.T) {
+	block := &Block{Address{148}, 6}
+	addrs := block.Addys()
+	for _, addr := range(addrs) {
+		log.Printf("block contains %v\n", addr)
+	}
+}
