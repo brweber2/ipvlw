@@ -68,6 +68,7 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 	if err != nil {
 		return err
 	}
+	n.rtr(r.Router)
 	n.addr(addr)
 	r.Addresses[addr] = n
 	r.Computers = append(r.Computers, n)
@@ -147,6 +148,7 @@ func (r Router) Announce(b *ipvlw.Block) error {
 }
 
 type Computer struct {
+	Rtr *Router
 	Addr ipvlw.Address
 }
 
@@ -158,9 +160,25 @@ func (c *Computer) Address() ipvlw.Address {
 	return c.Addr
 }
 
+func (c *Computer) Router() *Router {
+	return c.Rtr
+}
+
+func (c *Computer) rtr(r *Router) {
+	c.Rtr = r
+}
+
+func (c *Computer) Send(m ipvlw.Message) error {
+	return c.Router().DataPlane.Send(m)
+}
+
+func (c *Computer) Callback(f func(n Nic, m ipvlw.Message) error) error {
+	return c.Router().DataPlane.Callback(f)
+}
+
 func MakeNic() Nic {
 	log.Printf("making a nic")
-	return &Computer{ipvlw.Address{0}}
+	return &Computer{nil, ipvlw.Address{0}}
 }
 
 type RouterDhcp struct {
@@ -180,5 +198,13 @@ func (d RouterDhcp) ConnectTo(r *Router, nics ... Nic) error {
 		}
 	}
 	return nil
+}
+
+func (r RouterDataPlane) Send(m ipvlw.Message) error {
+	return nil // todo
+}
+
+func (r RouterDataPlane) Callback(func(Nic, ipvlw.Message) error) error {
+	return nil // todo
 }
 

@@ -125,7 +125,16 @@ func simulateRouting() {
 	to := nic_15.Address()
 	from := nic_2.Address()
 
-	log.Printf("let's send a message from %#v to %#v\n", from, to)
+	nic_15.Callback(func(n rpvlw.Nic, m ipvlw.Message) error {
+		log.Printf("recieved message %v\n", m)
+		return nil
+	})
+
+	log.Printf("let's send a message from %v to %v\n", from, to)
+	err = nic_2.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello there"})
+	if err != nil {
+		log.Fatalf("unable to send message: %v\n", err)
+	}
 
 //
 //	nic_2.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
