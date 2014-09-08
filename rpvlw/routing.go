@@ -285,7 +285,4 @@ func (r RouterDataPlane) Send(m ipvlw.Message) error {
 	}
 }
 
-func (r RouterDataPlane) Callback(func(Nic, ipvlw.Message) error) error {
-	return nil // todo
-}
 
