@@ -6,6 +6,32 @@ import (
 	"github.com/brweber2/interwebs/ipvlw"
 )
 
+type RouterControlPlane struct {
+	Router *Router
+	// local to this network
+	LocalBlocks []*ipvlw.Block
+	Computers []Nic
+	Addresses map[*ipvlw.Address]Nic
+	// external to this network
+	Nics []*Router // todo rename me!
+	Routes map[*ipvlw.Block]*System
+	Interfaces map[*System]*Router
+}
+
+type RouterDataPlane struct {
+	Router *Router
+}
+
+type Computer struct {
+	Rtr *Router
+	Addr ipvlw.Address
+	Callback func(Nic, ipvlw.Message) error
+}
+
+type RouterDhcp struct {
+	Routers []*Router
+}
+
 func MakeAndStartRouter(s int) *Router {
 	controlPlane := RouterControlPlane{
 		Router: nil,
@@ -31,18 +57,6 @@ func MakeAndStartRouter(s int) *Router {
 func (r Router) Start() {
 	r.ControlPlane.Start()
 	r.DataPlane.Start()
-}
-
-type RouterControlPlane struct {
-	Router *Router
-	// local to this network
-	LocalBlocks []*ipvlw.Block
-	Computers []Nic
-	Addresses map[*ipvlw.Address]Nic
-	// external to this network
-	Nics []*Router // todo rename me!
-	Routes map[*ipvlw.Block]*System
-	Interfaces map[*System]*Router
 }
 
 func (r *RouterControlPlane) isLocal(a ipvlw.Address) bool {
@@ -121,15 +135,6 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 	return nil
 }
 
-type RouterDataPlane struct {
-	Router *Router
-}
-
-type Runnable interface {
-	Start()
-	Stop()
-}
-
 func (r *RouterControlPlane) Start() {
 	fmt.Printf("starting control plane\n")
 }
@@ -193,12 +198,6 @@ func (r Router) Announce(b *ipvlw.Block) error {
 	return nil
 }
 
-type Computer struct {
-	Rtr *Router
-	Addr ipvlw.Address
-	Callback func(Nic, ipvlw.Message) error
-}
-
 func (c *Computer) addr(a *ipvlw.Address) {
 	c.Addr = *a
 }
@@ -236,10 +235,6 @@ func MakeNic() Nic {
 	return &Computer{nil, ipvlw.Address{0}, nil}
 }
 
-type RouterDhcp struct {
-	Routers []*Router
-}
-
 func MakeDhcp(routers ... *Router) Dhcp {
 	dhcp := RouterDhcp{make([]*Router, 0, 16)}
 	return dhcp
@@ -257,6 +252,7 @@ func (d RouterDhcp) ConnectTo(r *Router, nics ... Nic) error {
 
 // this ignores loops, number of hops, qos, etc.
 func (r RouterDataPlane) Send(m ipvlw.Message) error {
+	// todo we should add a hop to the message here!
 	to := m.To()
 	if r.Router.ControlPlane.isLocal(to) {
 		// if to is local, send to nic

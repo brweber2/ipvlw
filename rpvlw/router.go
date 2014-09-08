@@ -4,10 +4,19 @@ import (
 	"github.com/brweber2/interwebs/ipvlw"
 )
 
+type System struct {
+	Identifier uint8
+}
+
 type Router struct {
 	System System
 	ControlPlane ControlPlane
 	DataPlane DataPlane
+}
+
+type Runnable interface {
+	Start()
+	Stop()
 }
 
 type ControlPlane interface {

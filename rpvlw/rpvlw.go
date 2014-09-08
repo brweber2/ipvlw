@@ -5,9 +5,7 @@ package rpvlw
 //	"fmt"
 //)
 
-type System struct {
-	Identifier uint8
-}
+
 
 //type Announcement struct {
 //	System System
