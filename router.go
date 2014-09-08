@@ -200,10 +200,13 @@ func simulateRouting() {
 	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
 	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
 	dhcp.ConnectTo(router_5, nic_15, nic_16)
-//
-//	// send a message from computer 2 to computer 4 (same router - stays internal)
-//	to := nic_15.Address()
-//	from := nic_2.Address()
+
+	// send a message from computer 2 to computer 4 (same router - stays internal)
+	to := nic_15.Address()
+	from := nic_2.Address()
+
+	log.Printf("let's send a message from %#v to %#v\n", from, to)
+
 //
 //	nic_2.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
 //	responses, err := nic_2.Listen()

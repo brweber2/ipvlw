@@ -7,7 +7,7 @@ import (
 )
 
 func MakeAndStartRouter(s int) *Router {
-	controlPlane := RouterControlPlane{nil, make([]*Router, 0, 16), make(map[*ipvlw.Block]*System), make(map[*System]*Router), make([]Nic, 0, 16)}
+	controlPlane := RouterControlPlane{nil, make([]*Router, 0, 16), make(map[*ipvlw.Block]*System), make(map[*System]*Router), make([]Nic, 0, 16), make(map[*ipvlw.Address]Nic)}
 	r := Router{System{uint8(s)}, &controlPlane, RouterDataPlane{}}
 	controlPlane.Router = &r
 	r.Start()
@@ -25,13 +25,19 @@ type RouterControlPlane struct {
 	Routes map[*ipvlw.Block]*System
 	Interfaces map[*System]*Router
 	Computers []Nic
+	Addresses map[*ipvlw.Address]Nic
 }
 
 func (r *RouterControlPlane) String() string {
 	return fmt.Sprintf("router\n\tsystem: %v\n\trouters: %#v\n\tnics: %#v\n\troutes: %#v\n\t", r.Router.System, r.Routes, r.Nics, r.Interfaces)
 }
 
+func (r *RouterControlPlane) UnusedAddress() (ipvlw.Address, error) {
+	return ipvlw.Address{}, nil
+}
+
 func (r *RouterControlPlane) AddComputer(n Nic) error {
+	// find unused ip address
 	r.Computers = append(r.Computers, n)
 	return nil
 }
@@ -81,6 +87,10 @@ func (r *RouterControlPlane) AddNic(rtr *Router) error {
 	log.Printf("added router %v to %v\n", rtr, r.Nics)
 	r.Interfaces[&r.Router.System] = rtr
 	return nil
+}
+
+func (r *RouterControlPlane) Puters() []Nic {
+	return r.Computers
 }
 
 func (r *RouterControlPlane) Routers() []*Router {
