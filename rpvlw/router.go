@@ -2,59 +2,38 @@ package rpvlw
 
 import (
 	"github.com/brweber2/interwebs/ipvlw"
+	"log"
 )
 
-type System struct {
-	Identifier uint8
+
+func (r Router) Start() {
+	r.ControlPlane.Start()
+	r.DataPlane.Start()
 }
 
-type Router struct {
-	System System
-	ControlPlane ControlPlane
-	DataPlane DataPlane
+func (r Router) ConnectTo(routers ... *Router) error {
+	for _, router := range(routers) {
+		err := r.ControlPlane.AddNic(router)
+		if err != nil {
+			return err
+		}
+		err = router.ControlPlane.AddNic(&r)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-type Runnable interface {
-	Start()
-	Stop()
+func (r Router) Announce(b *ipvlw.Block) error {
+	log.Printf("router %v originating %v\n", r.System, b)
+	r.ControlPlane.AddRoute(&r.System, b)
+	for _, router := range(r.ControlPlane.Routers()) {
+		router.ControlPlane.AddRoute(&r.System, b)
+	}
+	return nil
 }
 
-type ControlPlane interface {
-	Runnable
-
-	isLocal(a ipvlw.Address) bool
-	nicFor(a ipvlw.Address) (Nic, error)
-	routeFor(a ipvlw.Address) bool
-	systemFor(a ipvlw.Address) (System, error)
-	routerFor(s System) (Router, error)
-
-	AddNic(r *Router) error // todo rename!
-	Routers() []*Router
-	AddRoute(s *System, b *ipvlw.Block) error
-	AddComputer(c Nic) error
-	Puters() []Nic
-}
-
-type DataPlane interface {
-	Runnable
-
-	Send(ipvlw.Message) error
-}
-
-type Nic interface {
-	addr(a *ipvlw.Address)
-	rtr(*Router)
-	handler() (func(Nic,ipvlw.Message) error, error)
-
-	Router() *Router
-	Address() ipvlw.Address
-	Send(ipvlw.Message) error
-	RegisterCallback(func(n Nic, m ipvlw.Message) error) error
-}
-
-type Dhcp interface {
-	ConnectTo(r *Router, n ... Nic) error
-}
 
 
 
