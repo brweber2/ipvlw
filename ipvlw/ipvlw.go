@@ -3,7 +3,7 @@ package ipvlw
 import (
 	"math/rand"
 	"fmt"
-	"log"
+//	"log"
 )
 
 type Address struct {
@@ -54,7 +54,7 @@ func (b Block) Contains(a Address) bool {
 	bits := b.Bits
 	s := b.Start.Address & Mask(bits)
 	e := a.Address & Mask(bits)
-	log.Printf("comparing %v and %v\n", s, e)
+//	log.Printf("comparing %v and %v\n", s, e)
 	return s == e
 }
 
