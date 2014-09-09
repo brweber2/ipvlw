@@ -58,29 +58,29 @@ func simulateRouting() {
 	fmt.Printf("router 5 connected to %d\n", len(router_5.ControlPlane.Routers()))
 
 	// announce some routes
-	err = router_1.Announce(&ipvlw.Block{ipvlw.Address{4}, 6})
+	err = router_1.Originate(&ipvlw.Block{ipvlw.Address{4}, 6})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
-	err = router_1.Announce(&ipvlw.Block{ipvlw.Address{20}, 6})
+	err = router_1.Originate(&ipvlw.Block{ipvlw.Address{20}, 6})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
-	err = router_2.Announce(&ipvlw.Block{ipvlw.Address{40}, 6})
+	err = router_2.Originate(&ipvlw.Block{ipvlw.Address{40}, 6})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
-	err = router_3.Announce(&ipvlw.Block{ipvlw.Address{60}, 6})
+	err = router_3.Originate(&ipvlw.Block{ipvlw.Address{60}, 6})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
-	err = router_4.Announce(&ipvlw.Block{ipvlw.Address{100}, 4})
+	err = router_4.Originate(&ipvlw.Block{ipvlw.Address{100}, 4})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
-	err = router_5.Announce(&ipvlw.Block{ipvlw.Address{200}, 6})
+	err = router_5.Originate(&ipvlw.Block{ipvlw.Address{200}, 6})
 	if err != nil {
-		log.Fatalf("Unable to announce routes with error %v\n", err)
+		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
 
 	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)

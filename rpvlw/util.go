@@ -12,7 +12,7 @@ func MakeAndStartRouter(s int) *Router {
 		Computers: make([]Nic, 0, 16),
 		Addresses: make(map[ipvlw.Address]Nic),
 		Nics: make([]*Router, 0, 16),
-		Routes: make(map[ipvlw.Block]System),
+		Routes: make(map[ipvlw.Block]RoutingPath),
 		Interfaces: make(map[System]Router),
 	}
 	dataPlane := RouterDataPlane{

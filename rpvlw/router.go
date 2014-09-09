@@ -25,13 +25,15 @@ func (r Router) ConnectTo(routers ... *Router) error {
 	return nil
 }
 
-func (r Router) Announce(b *ipvlw.Block) error {
+func (r Router) Originate(b *ipvlw.Block) error {
 	log.Printf("router %v originating %v\n", r.System, b)
-	r.ControlPlane.AddRoute(&r.System, b)
+	routingPath := SystemPath{Systems: []System{r.System}}
+
+	r.ControlPlane.AddRoute(routingPath, b)
 	log.Printf("announce to routers: %v\n", r.ControlPlane.Routers())
 	for _, router := range(r.ControlPlane.Routers()) {
 		log.Printf("announce %v out of %v\n", b, r.System)
-		router.ControlPlane.AddRoute(&r.System, b)
+		router.ControlPlane.AddRoute(routingPath, b)
 	}
 	return nil
 }

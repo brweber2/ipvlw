@@ -30,7 +30,7 @@ type ControlPlane interface {
 
 	AddNic(r *Router) error // todo rename!
 	Routers() []*Router
-	AddRoute(s *System, b *ipvlw.Block) error
+	AddRoute(p RoutingPath, b *ipvlw.Block) error
 	AddComputer(c Nic) error
 	Puters() []Nic
 }
@@ -39,6 +39,12 @@ type DataPlane interface {
 	Runnable
 
 	Send(ipvlw.Message) error
+}
+
+type RoutingPath interface {
+	Hops() []System
+	Length() uint8
+	First() System
 }
 
 type Nic interface {

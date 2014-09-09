@@ -14,7 +14,7 @@ type RouterControlPlane struct {
 	Addresses map[ipvlw.Address]Nic
 	// external to this network
 	Nics []*Router // todo rename me!
-	Routes map[ipvlw.Block]System
+	Routes map[ipvlw.Block]RoutingPath
 	Interfaces map[System]Router
 }
 
@@ -55,9 +55,9 @@ func (r *RouterControlPlane) routeFor(a ipvlw.Address) bool {
 }
 
 func (r *RouterControlPlane) systemFor(a ipvlw.Address) (System, error) {
-	for block, system := range(r.Routes) {
+	for block, routingPath := range(r.Routes) {
 		if block.Contains(a) {
-			return system, nil
+			return routingPath.First(), nil
 		}
 	}
 	return System{}, fmt.Errorf("Unable to find system for %v\n", a)
@@ -123,10 +123,10 @@ func (r *RouterControlPlane) Routers() []*Router {
 	return r.Nics
 }
 
-func (r *RouterControlPlane) AddRoute(s *System, b *ipvlw.Block) error {
-	if s.Identifier == r.Router.System.Identifier {
+func (r *RouterControlPlane) AddRoute(p RoutingPath, b *ipvlw.Block) error {
+	if p.First().Identifier == r.Router.System.Identifier {
 		r.LocalBlocks = append(r.LocalBlocks, b)
 	}
-	r.Routes[*b] = *s
+	r.Routes[*b] = p
 	return nil
 }
