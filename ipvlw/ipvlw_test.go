@@ -223,9 +223,9 @@ func TestMakeResponse(t *testing.T) {
 	empty_message := TextMessage{Address{1}, Address{2}, 3, ""}
 
 	// RESPONSES
-	valid_response := TextMessage{Address{1}, Address{2}, 3, "valid response"}
-	no_message_response := TextMessage{Address{1}, Address{2}, 3, "no message response"}
-	empty_message_response := TextMessage{Address{1}, Address{2}, 3, "empty message response"}
+	valid_response := TextMessage{Address{2}, Address{1}, 3, "valid response"}
+	no_message_response := TextMessage{Address{2}, Address{1}, 3, "no message response"}
+	empty_message_response := TextMessage{Address{2}, Address{1}, 3, "empty message response"}
 
 	// all filled out
 	r_valid, err := MakeResponse(valid, "valid response")
@@ -235,6 +235,7 @@ func TestMakeResponse(t *testing.T) {
 	if r_valid != valid_response {
 		t.Errorf("Did not make proper response for a valid message. Expected %v Actual %v\n", valid_response, r_valid)
 	}
+	log.Printf("r_valid: %v\n", r_valid)
 
 	// empty message
 	r_empty_message, err := MakeResponse(empty_message, "empty message response")

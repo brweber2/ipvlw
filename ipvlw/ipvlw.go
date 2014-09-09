@@ -95,5 +95,5 @@ func MakeResponse( m Message, resp string) (Message, error) {
 	if &i == nil {
 		return nil, fmt.Errorf("No id on original message %v\n", m)
 	}
-	return TextMessage{f, t, i, resp}, nil
+	return TextMessage{FromAddr: t, ToAddr: f, Identifier: i, Body: resp}, nil
 }

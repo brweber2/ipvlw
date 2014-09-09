@@ -3,6 +3,7 @@ package rpvlw
 import (
 	"fmt"
 	"github.com/brweber2/interwebs/ipvlw"
+	"log"
 )
 
 type RouterDataPlane struct {
@@ -31,6 +32,7 @@ func (r *RouterDataPlane) Send(m ipvlw.Message) error {
 		if err != nil {
 			return err
 		}
+		log.Printf("going to call handler... sending %v\n", m)
 		return f(targetNic, m)
 	} else if r.Router.ControlPlane.routeFor(to) {
 		// if to is external, send to router
