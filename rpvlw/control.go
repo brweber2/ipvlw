@@ -124,9 +124,54 @@ func (r *RouterControlPlane) Routers() []*Router {
 }
 
 func (r *RouterControlPlane) AddRoute(p RoutingPath, b *ipvlw.Block) error {
-	if p.First().Identifier == r.Router.System.Identifier {
-		r.LocalBlocks = append(r.LocalBlocks, b)
+	log.Printf("adding route %v for block %v\n", p, b)
+	if systemInPath(r, p) {
+		log.Printf("ignoring path %v because this ")
+		return nil
 	}
-	r.Routes[*b] = p
+	p = addThisSystemToPath(r, p)
+	log.Printf("now this path is %v\n", p)
+	if shortestPath(r, p, b) {
+		if localToThisRouter(r, p) {
+			r.LocalBlocks = append(r.LocalBlocks, b)
+		}
+		r.Routes[*b] = p
+		for _, neighbor := range(r.Routers()) {
+			err := neighbor.Announce(*b, p)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+//	if p.First().Identifier == r.Router.System.Identifier {
+//		r.LocalBlocks = append(r.LocalBlocks, b)
+//	}
+//	r.Routes[*b] = p
 	return nil
+}
+
+func systemInPath(r *RouterControlPlane, p RoutingPath) bool {
+	for _, system := range(p.Hops()) {
+		if system == r.Router.System {
+			return true
+		}
+	}
+	return false
+}
+
+func addThisSystemToPath(r *RouterControlPlane, p RoutingPath) RoutingPath {
+	return SystemPath{Systems: append(p.Hops(), r.Router.System)}
+}
+
+func shortestPath(r *RouterControlPlane, p RoutingPath, b *ipvlw.Block) bool {
+	if currentPath, ok := r.Routes[*b]; ok {
+		return p.Length() < currentPath.Length()
+	} else {
+		return true
+	}
+}
+
+func localToThisRouter(r *RouterControlPlane, p RoutingPath) bool {
+	return p.First() == r.Router.System
 }

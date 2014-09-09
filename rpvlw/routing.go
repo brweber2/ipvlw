@@ -14,6 +14,10 @@ type Router struct {
 	DataPlane DataPlane
 }
 
+type Routable interface {
+	Announce(b ipvlw.Block, p RoutingPath) error
+}
+
 type Runnable interface {
 	Start()
 	Stop()
