@@ -10,10 +10,10 @@ func MakeAndStartRouter(s int) *Router {
 		Router: nil,
 		LocalBlocks: make([]*ipvlw.Block, 0, 256),
 		Computers: make([]Nic, 0, 16),
-		Addresses: make(map[*ipvlw.Address]Nic),
+		Addresses: make(map[ipvlw.Address]Nic),
 		Nics: make([]*Router, 0, 16),
-		Routes: make(map[*ipvlw.Block]*System),
-		Interfaces: make(map[*System]*Router),
+		Routes: make(map[ipvlw.Block]System),
+		Interfaces: make(map[System]Router),
 	}
 	dataPlane := RouterDataPlane{
 		nil,

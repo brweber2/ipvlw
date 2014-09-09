@@ -3,7 +3,6 @@ package rpvlw
 import (
 	"fmt"
 	"github.com/brweber2/interwebs/ipvlw"
-	"log"
 )
 
 type RouterDataPlane struct {
@@ -22,10 +21,6 @@ func (r *RouterDataPlane) Stop() {
 func (r *RouterDataPlane) Send(m ipvlw.Message) error {
 	// todo we should add a hop to the message here!
 	to := m.To()
-	log.Printf("r: %v\n", r)
-	log.Printf("r:router: %v\n", r.Router)
-	log.Printf("r:router:control: %v\n", r.Router.ControlPlane)
-	log.Printf("to: %v\n", to)
 	if r.Router.ControlPlane.isLocal(to) {
 		// if to is local, send to nic
 		targetNic, err := r.Router.ControlPlane.nicFor(to)

@@ -122,10 +122,10 @@ func simulateRouting() {
 	dhcp.ConnectTo(router_5, nic_15, nic_16)
 
 	// send a message from computer 2 to computer 4 (same router - stays internal)
-	to := nic_15.Address()
+	to := nic_4.Address()
 	from := nic_2.Address()
 
-	nic_15.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
+	nic_4.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
 		log.Printf("recieved message %v\n", m)
 		return nil
 	})
