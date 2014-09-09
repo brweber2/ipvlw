@@ -146,11 +146,24 @@ func simulateRouting() {
 		log.Fatalf("unable to send message: %v\n", err)
 	}
 
-//
-//	nic_2.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
-//	responses, err := nic_2.Listen()
-//
-//	// send a message from computer 2 to computer 15 (different routers - external traffic)
+	log.Printf("***** DONE INTERAL *****\n")
+
+	from = nic_1.Address()
+	to = nic_15.Address()
+
+	log.Printf("trying to send message from %v to %v\n", from, to)
+
+	nic_15.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
+		log.Printf("nic 15 recieved message %v\n", m)
+		return nil
+	})
+
+	err = nic_1.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
+	if err != nil {
+		log.Fatalf("unable to send message from 1 to 15\n")
+	}
+
+	// send a message from computer 2 to computer 15 (different routers - external traffic)
 
 }
 

@@ -27,11 +27,9 @@ func (r *RouterControlPlane) Stop() {
 }
 
 func (r *RouterControlPlane) isLocal(a ipvlw.Address) bool {
-	log.Printf("checking if %v is local\n", a)
 	for _, block := range(r.LocalBlocks) {
-		log.Printf("checking if block %v contains %v\n", block, a)
 		if block.Contains(a) {
-			log.Printf("ah ha, block %v does contain %v\n", block, a)
+			log.Printf("%v is local to %v\n", a, r)
 			return true
 		}
 	}
@@ -46,6 +44,7 @@ func (r *RouterControlPlane) nicFor(a ipvlw.Address) (Nic,error) {
 }
 
 func (r *RouterControlPlane) routeFor(a ipvlw.Address) bool {
+	log.Printf("looking for routeFor %v\n", a)
 	for block, _ := range(r.Routes) {
 		if block.Contains(a) {
 			return true
