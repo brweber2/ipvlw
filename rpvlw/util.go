@@ -19,7 +19,7 @@ func MakeAndStartRouter(s int) *Router {
 		nil,
 	}
 
-	r := Router{System{uint8(s)}, &controlPlane, dataPlane}
+	r := Router{System{uint8(s)}, &controlPlane, &dataPlane}
 	controlPlane.Router = &r
 	dataPlane.Router = &r
 
