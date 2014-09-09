@@ -44,8 +44,9 @@ func (r *RouterControlPlane) nicFor(a ipvlw.Address) (Nic,error) {
 }
 
 func (r *RouterControlPlane) routeFor(a ipvlw.Address) bool {
-	log.Printf("looking for routeFor %v\n", a)
+	log.Printf("looking for route to %v in %v\n", a, r.Routes)
 	for block, _ := range(r.Routes) {
+		log.Printf("checking if block %v contains %v\n", block, a)
 		if block.Contains(a) {
 			return true
 		}
