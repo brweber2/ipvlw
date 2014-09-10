@@ -40,8 +40,6 @@ type ControlPlane interface {
 	Puters() []Nic
 	GetRoutes() map[ipvlw.Block]RoutingPath
 	RouteFor(a ipvlw.Address) (RoutingPath, error)
-//	BlockFor(a ipvlw.Address) (*ipvlw.Block, error)
-//	RoutingPathFor(b ipvlw.Block) (RoutingPath, error)
 }
 
 type DataPlane interface {

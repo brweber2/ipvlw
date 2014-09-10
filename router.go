@@ -33,8 +33,6 @@ func simulateRouting() {
 	router_4 := rpvlw.MakeAndStartRouter(4)
 	router_5 := rpvlw.MakeAndStartRouter(5)
 
-//	fmt.Printf("routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
-
 	// build the network topology
 	err := router_1.ConnectTo(router_2, router_3)
 	if err != nil {
@@ -49,6 +47,7 @@ func simulateRouting() {
 		log.Fatalf("Unable to connect routers with error %v\n", err)
 	}
 
+	// print network topology
 	for _, rtr := range(router_1.ControlPlane.Routers()) {
 		log.Printf("router %d is connected to %d\n", router_1.System.Identifier, rtr.System.Identifier)
 	}
@@ -64,13 +63,6 @@ func simulateRouting() {
 	for _, rtr := range(router_5.ControlPlane.Routers()) {
 		log.Printf("router %d is connected to %d\n", router_5.System.Identifier, rtr.System.Identifier)
 	}
-
-//	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
-//	fmt.Printf("router 1 connected to %d routers\n", len(router_1.ControlPlane.Routers()))
-//	fmt.Printf("router 2 connected to %d routers\n", len(router_2.ControlPlane.Routers()))
-//	fmt.Printf("router 3 connected to %d routers\n", len(router_3.ControlPlane.Routers()))
-//	fmt.Printf("router 4 connected to %d routers\n", len(router_4.ControlPlane.Routers()))
-//	fmt.Printf("router 5 connected to %d routers\n", len(router_5.ControlPlane.Routers()))
 
 	// announce some routes
 	err = router_1.Originate(&ipvlw.Block{ipvlw.Address{4}, 6})
@@ -98,14 +90,13 @@ func simulateRouting() {
 		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
 
+	// print the routing tables
 	log.Printf("**** ROUTING TABLES ****\n")
 	router_1.ControlPlane.PrintRoutes()
 	router_2.ControlPlane.PrintRoutes()
 	router_3.ControlPlane.PrintRoutes()
 	router_4.ControlPlane.PrintRoutes()
 	router_5.ControlPlane.PrintRoutes()
-
-//	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
 
 	// define some computers
 	nic_1 := rpvlw.MakeNic()
@@ -125,25 +116,18 @@ func simulateRouting() {
 	nic_15 := rpvlw.MakeNic()
 	nic_16 := rpvlw.MakeNic()
 
-//	log.Printf("making nics %#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v \n",
-//	nic_1, nic_2, nic_3, nic_4, nic_5, nic_6, nic_7, nic_8, nic_9, nic_10, nic_11, nic_12, nic_13,
-//	nic_14, nic_15, nic_16)
-
-	// "dhcp" will assing computers to routers (as if they were physically plugged in there)
-	// and it will assign IPvLW addresses to the network interfaces
+	// "dhcp" will be assigning ip addresses based on the available addresses per router
+	// so we have to make dhcp aware of the routers that exist
 	dhcp := rpvlw.MakeDhcp(router_1, router_2, router_3, router_4, router_5)
 
-//	log.Printf("dhcp: %#v\n", dhcp)
-
-
-	// plug computers into the network
+	// plug computers into the network and they are assigned an ip address
 	dhcp.ConnectTo(router_1, nic_1, nic_2, nic_3, nic_4)
 	dhcp.ConnectTo(router_2, nic_5, nic_6, nic_7)
 	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
 	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
 	dhcp.ConnectTo(router_5, nic_15, nic_16)
 
-	// send a message from computer 2 to computer 4 (same router - stays internal)
+	// send a message from computer 2 to computer 4 (same router - stays internal to router 1)
 	to := nic_4.Address()
 	from := nic_2.Address()
 
@@ -170,6 +154,7 @@ func simulateRouting() {
 
 	log.Printf("***** DONE WITH INTERAL ROUTING EXAMPLE *****\n")
 
+	// send a message from computer 2 to computer 15 (different routers - external traffic)
 	from = nic_1.Address()
 	to = nic_15.Address()
 
@@ -196,7 +181,6 @@ func simulateRouting() {
 	}
 
 	log.Printf("***** DONE WITH INTERAL ROUTING EXAMPLE *****\n")
-	// send a message from computer 2 to computer 15 (different routers - external traffic)
 
 }
 

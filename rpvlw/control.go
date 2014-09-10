@@ -29,7 +29,6 @@ func (r *RouterControlPlane) Stop() {
 func (r *RouterControlPlane) isLocal(a ipvlw.Address) bool {
 	for _, block := range(r.LocalBlocks) {
 		if block.Contains(a) {
-//			log.Printf("%v is local to %v\n", a, r)
 			return true
 		}
 	}
@@ -84,7 +83,6 @@ func (r *RouterControlPlane) String() string {
 }
 
 func (r *RouterControlPlane) AddressInUse(a *ipvlw.Address) bool {
-//	log.Printf("checking if %v is in %v\n", a, r.Addresses)
 	if _,ok := r.Addresses[*a]; ok {
 		return true
 	}
@@ -95,7 +93,6 @@ func (r *RouterControlPlane) UnusedAddress() (*ipvlw.Address, error) {
 	for _, block := range(r.LocalBlocks) {
 		for _, addr := range(block.Addresses()) {
 			if ! r.AddressInUse(addr) {
-//				log.Printf("returning unused address %v\n", addr)
 				return addr, nil
 			}
 		}
@@ -118,9 +115,7 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 }
 
 func (r *RouterControlPlane) AddNic(rtr *Router) error {
-//	log.Printf("adding router %v to %v\n", rtr, r.Nics)
 	r.Nics = append(r.Nics, rtr)
-//	log.Printf("added router %v to %v\n", rtr, r.Nics)
 	r.Interfaces[rtr.System] = *rtr
 	return nil
 }
@@ -148,13 +143,10 @@ func (r *RouterControlPlane) PrintRoutes() {
 }
 
 func (r *RouterControlPlane) AddRoute(rp RoutingPath, b *ipvlw.Block) error {
-//	log.Printf("inspecting route %v for block %v at router %d\n", p, b, r.Router.System)
 	if systemInPath(r, rp) {
-//		log.Printf("ignoring path %v to prevent loops in the routing tables at router %v\n", p, r.Router.System)
 		return nil
 	}
 	p := addThisSystemToPath(r, rp)
-//	log.Printf("now this path is %v\n", p)
 	if shortestPath(r, p, b) {
 		log.Printf("shortest path %v at router %d\n", p, r.Router.System)
 		if localToThisRouter(r, p) {
@@ -170,18 +162,16 @@ func (r *RouterControlPlane) AddRoute(rp RoutingPath, b *ipvlw.Block) error {
 				return err
 			}
 		}
-	} else {
-//		log.Printf("NOT shortest path %v at router %d\n", p, r.Router.System)
 	}
 
 	return nil
 }
 
 func systemInPath(r *RouterControlPlane, p RoutingPath) bool {
+	// it is ok to be first in the path, but not anywhere else (that would cause a loop)
 	first_hop := true
 	for _, system := range(p.Hops()) {
 		if system == r.Router.System && !first_hop {
-//			log.Printf("discarding loop path %v\n", p)
 			return true
 		}
 		first_hop = false

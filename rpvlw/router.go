@@ -30,17 +30,9 @@ func (r Router) Originate(b *ipvlw.Block) error {
 	routingPath := SystemPath{Systems: []System{}}
 
 	return r.Announce(*b, routingPath)
-//	r.ControlPlane.AddRoute(routingPath, b)
-//	log.Printf("announce to routers: %v\n", r.ControlPlane.Routers())
-//	for _, router := range(r.ControlPlane.Routers()) {
-//		log.Printf("announce %v out of %v\n", b, r.System)
-//		router.ControlPlane.AddRoute(routingPath, b)
-//	}
-//	return nil
 }
 
 func (r Router) Announce(b ipvlw.Block, p RoutingPath) error {
-//	log.Printf("announcing %v via %v to router %d\n", b, p, r.System)
 	return r.ControlPlane.AddRoute(p, &b)
 }
 

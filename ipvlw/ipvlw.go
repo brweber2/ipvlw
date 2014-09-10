@@ -18,7 +18,6 @@ type Header interface {
 	From() Address
 	To() Address
 	Id() uint64
-	// todo add Hops
 }
 
 type Message interface {
