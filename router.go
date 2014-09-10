@@ -185,6 +185,11 @@ func simulateRouting() {
 		return n.Send(resp)
 	})
 
+	nic_1.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
+		log.Printf("nic 1 recieved message %v\n", m)
+		return nil
+	})
+
 	err = nic_1.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
 	if err != nil {
 		log.Fatalf("unable to send message from 1 to 15\n")
