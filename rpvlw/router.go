@@ -40,6 +40,7 @@ func (r Router) Originate(b *ipvlw.Block) error {
 }
 
 func (r Router) Announce(b ipvlw.Block, p RoutingPath) error {
+//	log.Printf("announcing %v via %v to router %d\n", b, p, r.System)
 	return r.ControlPlane.AddRoute(p, &b)
 }
 

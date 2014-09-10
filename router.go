@@ -34,7 +34,7 @@ func simulateRouting() {
 	router_4 := rpvlw.MakeAndStartRouter(4)
 	router_5 := rpvlw.MakeAndStartRouter(5)
 
-	fmt.Printf("routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
+//	fmt.Printf("routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
 
 	// build the network topology
 	err := router_1.ConnectTo(router_2, router_3)
@@ -50,12 +50,28 @@ func simulateRouting() {
 		log.Fatalf("Unable to connect routers with error %v\n", err)
 	}
 
-	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
-	fmt.Printf("router 1 connected to %d\n", len(router_1.ControlPlane.Routers()))
-	fmt.Printf("router 2 connected to %d\n", len(router_2.ControlPlane.Routers()))
-	fmt.Printf("router 3 connected to %d\n", len(router_3.ControlPlane.Routers()))
-	fmt.Printf("router 4 connected to %d\n", len(router_4.ControlPlane.Routers()))
-	fmt.Printf("router 5 connected to %d\n", len(router_5.ControlPlane.Routers()))
+	for _, rtr := range(router_1.ControlPlane.Routers()) {
+		log.Printf("router 1 (%d) is connected to %d\n", router_1.System.Identifier, rtr.System.Identifier)
+	}
+	for _, rtr := range(router_2.ControlPlane.Routers()) {
+		log.Printf("router 2 (%d) is connected to %d\n", router_2.System.Identifier, rtr.System.Identifier)
+	}
+	for _, rtr := range(router_3.ControlPlane.Routers()) {
+		log.Printf("router 3 (%d) is connected to %d\n", router_3.System.Identifier, rtr.System.Identifier)
+	}
+	for _, rtr := range(router_4.ControlPlane.Routers()) {
+		log.Printf("router 4 (%d) is connected to %d\n", router_4.System.Identifier, rtr.System.Identifier)
+	}
+	for _, rtr := range(router_5.ControlPlane.Routers()) {
+		log.Printf("router 5 (%d) is connected to %d\n", router_5.System.Identifier, rtr.System.Identifier)
+	}
+
+//	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
+	fmt.Printf("router 1 connected to %d routers\n", len(router_1.ControlPlane.Routers()))
+	fmt.Printf("router 2 connected to %d routers\n", len(router_2.ControlPlane.Routers()))
+	fmt.Printf("router 3 connected to %d routers\n", len(router_3.ControlPlane.Routers()))
+	fmt.Printf("router 4 connected to %d routers\n", len(router_4.ControlPlane.Routers()))
+	fmt.Printf("router 5 connected to %d routers\n", len(router_5.ControlPlane.Routers()))
 
 	// announce some routes
 	err = router_1.Originate(&ipvlw.Block{ipvlw.Address{4}, 6})
@@ -83,7 +99,14 @@ func simulateRouting() {
 		log.Fatalf("Unable to originate routes with error %v\n", err)
 	}
 
-	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
+	log.Printf("**** ROUTING TABLES ****\n")
+	router_1.ControlPlane.PrintRoutes()
+	router_2.ControlPlane.PrintRoutes()
+	router_3.ControlPlane.PrintRoutes()
+	router_4.ControlPlane.PrintRoutes()
+	router_5.ControlPlane.PrintRoutes()
+
+//	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
 
 	// define some computers
 	nic_1 := rpvlw.MakeNic()
@@ -120,6 +143,13 @@ func simulateRouting() {
 	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
 	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
 	dhcp.ConnectTo(router_5, nic_15, nic_16)
+
+	log.Printf("**** ROUTING TABLES ****\n")
+	router_1.ControlPlane.PrintRoutes()
+	router_2.ControlPlane.PrintRoutes()
+	router_3.ControlPlane.PrintRoutes()
+	router_4.ControlPlane.PrintRoutes()
+	router_5.ControlPlane.PrintRoutes()
 
 	// send a message from computer 2 to computer 4 (same router - stays internal)
 	to := nic_4.Address()

@@ -35,8 +35,10 @@ type ControlPlane interface {
 	AddNic(r *Router) error // todo rename!
 	Routers() []*Router
 	AddRoute(p RoutingPath, b *ipvlw.Block) error
+	PrintRoutes()
 	AddComputer(c Nic) error
 	Puters() []Nic
+	GetRoutes() map[ipvlw.Block]RoutingPath
 }
 
 type DataPlane interface {
@@ -49,6 +51,7 @@ type RoutingPath interface {
 	Hops() []System
 	Length() uint8
 	First() System
+	Clone() RoutingPath
 }
 
 type Nic interface {

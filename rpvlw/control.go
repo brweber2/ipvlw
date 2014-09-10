@@ -123,39 +123,55 @@ func (r *RouterControlPlane) Routers() []*Router {
 	return r.Nics
 }
 
-func (r *RouterControlPlane) AddRoute(p RoutingPath, b *ipvlw.Block) error {
-	log.Printf("adding route %v for block %v\n", p, b)
-	if systemInPath(r, p) {
-		log.Printf("ignoring path %v because this ")
+func (r *RouterControlPlane) GetRoutes() map[ipvlw.Block]RoutingPath {
+	return r.Routes
+}
+
+func (r *RouterControlPlane) PrintRoutes() {
+	log.Printf("router: %d\n", r.Router.System)
+	for block, path := range(r.GetRoutes()) {
+		log.Printf("\tblock: %v/%d\n", block.Start, block.Bits)
+		for _, hop := range(path.Hops()) {
+			log.Printf("\t\thop: %d\n", hop.Identifier)
+		}
+	}
+}
+
+func (r *RouterControlPlane) AddRoute(rp RoutingPath, b *ipvlw.Block) error {
+//	log.Printf("inspecting route %v for block %v at router %d\n", p, b, r.Router.System)
+	if systemInPath(r, rp) {
+//		log.Printf("ignoring path %v to prevent loops in the routing tables at router %v\n", p, r.Router.System)
 		return nil
 	}
-	p = addThisSystemToPath(r, p)
-	log.Printf("now this path is %v\n", p)
+	p := addThisSystemToPath(r, rp)
+//	log.Printf("now this path is %v\n", p)
 	if shortestPath(r, p, b) {
+		log.Printf("shortest path %v at router %d\n", p, r.Router.System)
 		if localToThisRouter(r, p) {
 			r.LocalBlocks = append(r.LocalBlocks, b)
 		}
 		r.Routes[*b] = p
 		for _, neighbor := range(r.Routers()) {
-			err := neighbor.Announce(*b, p)
+			err := neighbor.Announce(*b, p.Clone())
 			if err != nil {
 				return err
 			}
 		}
+	} else {
+//		log.Printf("NOT shortest path %v at router %d\n", p, r.Router.System)
 	}
 
-//	if p.First().Identifier == r.Router.System.Identifier {
-//		r.LocalBlocks = append(r.LocalBlocks, b)
-//	}
-//	r.Routes[*b] = p
 	return nil
 }
 
 func systemInPath(r *RouterControlPlane, p RoutingPath) bool {
+	first_hop := true
 	for _, system := range(p.Hops()) {
-		if system == r.Router.System {
+		if system == r.Router.System && !first_hop {
+//			log.Printf("discarding loop path %v\n", p)
 			return true
 		}
+		first_hop = false
 	}
 	return false
 }
