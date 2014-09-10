@@ -23,6 +23,7 @@ func (r *RouterDataPlane) Send(m ipvlw.Message) error {
 	// todo we should add a hop to the message here!
 	to := m.To()
 	if r.Router.ControlPlane.isLocal(to) {
+		log.Printf("sending message via local traffic to %v on router %d\n", to, r.Router.System.Identifier)
 		// if to is local, send to nic
 		targetNic, err := r.Router.ControlPlane.nicFor(to)
 		if err != nil {
@@ -34,19 +35,28 @@ func (r *RouterDataPlane) Send(m ipvlw.Message) error {
 		}
 		log.Printf("going to call handler... sending %v\n", m)
 		return f(targetNic, m)
-	} else if r.Router.ControlPlane.routeFor(to) {
-		log.Printf("we have found a route to %v\n", to)
-		// if to is external, send to router
-		targetSystem, err := r.Router.ControlPlane.systemFor(to)
-		if err != nil {
-			return err
-		}
-		targetRouter, err := r.Router.ControlPlane.routerFor(targetSystem)
-		if err != nil {
-			return err
-		}
-		return targetRouter.DataPlane.Send(m)
 	} else {
-		return fmt.Errorf("Unable to find router for %v\n", to)
+		log.Printf("sending message via external traffic to %v on router %d\n", to, r.Router.System.Identifier)
+		systemPath, err := r.Router.ControlPlane.RouteFor(to)
+		if err != nil {
+			return err
+		}
+		log.Printf("going to route this message via following path:\n")
+		systemPath = systemPath.Pop()
+		systemPath.PrintHops()
+		nextHop := systemPath.Last()
+		log.Printf("next hop is %v on router %d\n", nextHop, r.Router.System.Identifier)
+		if nextHop.Identifier == r.Router.System.Identifier {
+			log.Printf("route should be local, about to bomb! router: %d\n", r.Router.System)
+			return fmt.Errorf("This route should be local... %v on router %d\n", nextHop, r.Router.System)
+		}
+		nextRouter, err := r.Router.ControlPlane.routerFor(nextHop)
+		if err != nil {
+			log.Printf("--- bbw ---\n")
+			log.Print(err)
+			return err
+		}
+		log.Printf("going to send traffic via router %v from router %d\n", nextRouter, r.Router.System.Identifier)
+		return nextRouter.DataPlane.Send(m)
 	}
 }

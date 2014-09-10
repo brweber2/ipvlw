@@ -33,6 +33,16 @@ func (r *RouterControlPlane) isLocal(a ipvlw.Address) bool {
 			return true
 		}
 	}
+//	path, err := r.RouteFor(a)
+//	if err != nil {
+//		log.Printf("address %v is not local on router %d\n", a, r.Router.System)
+//		return false
+//	}
+//	path.PrintHops()
+//	if path.First().Identifier == r.Router.System.Identifier {
+//		log.Printf("identifies match last %d and router %d\n", path.First().Identifier, r.Router.System.Identifier)
+//		return true
+//	}
 	return false
 }
 
@@ -62,6 +72,37 @@ func (r *RouterControlPlane) systemFor(a ipvlw.Address) (System, error) {
 	}
 	return System{}, fmt.Errorf("Unable to find system for %v\n", a)
 }
+
+func (r *RouterControlPlane) RouteFor(a ipvlw.Address) (RoutingPath, error) {
+	for block, routingPath := range(r.GetRoutes()) {
+	    if block.Contains(a) {
+			return routingPath, nil
+		}
+	}
+	return nil, fmt.Errorf("no routing path found for address %v in router %d\n", a, r.Router.System)
+
+//	block, err := r.BlockFor(a)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return r.Router.ControlPlane.RoutingPathFor(*block)
+}
+
+//func (r *RouterControlPlane) RoutingPathFor(b ipvlw.Block) (RoutingPath, error) {
+//	if path, ok := r.Router.ControlPlane.GetRoutes()[b]; ok {
+//		return path, nil
+//	}
+//	return nil, fmt.Errorf("No routing path found for block %v on router %d\n", b, r.Router.System)
+//}
+//
+//func (r *RouterControlPlane) BlockFor(a ipvlw.Address) (*ipvlw.Block, error) {
+//	for block, _ := range(r.GetRoutes()) {
+//		if block.Contains(a) {
+//			return &block, nil
+//		}
+//	}
+//	return nil, fmt.Errorf("Unable to find block for address %v in router %d\n", a, r.Router.System)
+//}
 
 func (r *RouterControlPlane) routerFor(s System) (Router, error) {
 	if router, ok := r.Interfaces[s]; ok {
@@ -111,7 +152,7 @@ func (r *RouterControlPlane) AddNic(rtr *Router) error {
 	log.Printf("adding router %v to %v\n", rtr, r.Nics)
 	r.Nics = append(r.Nics, rtr)
 	log.Printf("added router %v to %v\n", rtr, r.Nics)
-	r.Interfaces[r.Router.System] = *rtr
+	r.Interfaces[rtr.System] = *rtr
 	return nil
 }
 

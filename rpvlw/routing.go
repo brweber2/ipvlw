@@ -39,6 +39,9 @@ type ControlPlane interface {
 	AddComputer(c Nic) error
 	Puters() []Nic
 	GetRoutes() map[ipvlw.Block]RoutingPath
+	RouteFor(a ipvlw.Address) (RoutingPath, error)
+//	BlockFor(a ipvlw.Address) (*ipvlw.Block, error)
+//	RoutingPathFor(b ipvlw.Block) (RoutingPath, error)
 }
 
 type DataPlane interface {
@@ -51,7 +54,10 @@ type RoutingPath interface {
 	Hops() []System
 	Length() uint8
 	First() System
+	Last() System
 	Clone() RoutingPath
+	PrintHops()
+	Pop() RoutingPath
 }
 
 type Nic interface {
