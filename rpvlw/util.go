@@ -2,7 +2,7 @@ package rpvlw
 
 import (
 	"github.com/brweber2/interwebs/ipvlw"
-	"log"
+	"github.com/brweber2/interwebs/randstr"
 )
 
 func MakeAndStartRouter(s int) *Router {
@@ -28,8 +28,7 @@ func MakeAndStartRouter(s int) *Router {
 }
 
 func MakeNic() Nic {
-	log.Printf("making a nic")
-	return &Computer{nil, ipvlw.Address{0}, nil}
+	return &Computer{nil, ipvlw.Address{0}, nil, randstr.RandomString()}
 }
 
 func MakeDhcp(routers ... *Router) Dhcp {

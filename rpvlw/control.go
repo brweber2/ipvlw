@@ -19,30 +19,20 @@ type RouterControlPlane struct {
 }
 
 func (r *RouterControlPlane) Start() {
-	fmt.Printf("starting control plane\n")
+	log.Printf("starting control plane on router %d\n", r.Router.System.Identifier)
 }
 
 func (r *RouterControlPlane) Stop() {
-	fmt.Printf("stopping control plane\n")
+	log.Printf("stopping control plane on router %d\n", r.Router.System.Identifier)
 }
 
 func (r *RouterControlPlane) isLocal(a ipvlw.Address) bool {
 	for _, block := range(r.LocalBlocks) {
 		if block.Contains(a) {
-			log.Printf("%v is local to %v\n", a, r)
+//			log.Printf("%v is local to %v\n", a, r)
 			return true
 		}
 	}
-//	path, err := r.RouteFor(a)
-//	if err != nil {
-//		log.Printf("address %v is not local on router %d\n", a, r.Router.System)
-//		return false
-//	}
-//	path.PrintHops()
-//	if path.First().Identifier == r.Router.System.Identifier {
-//		log.Printf("identifies match last %d and router %d\n", path.First().Identifier, r.Router.System.Identifier)
-//		return true
-//	}
 	return false
 }
 
@@ -80,29 +70,7 @@ func (r *RouterControlPlane) RouteFor(a ipvlw.Address) (RoutingPath, error) {
 		}
 	}
 	return nil, fmt.Errorf("no routing path found for address %v in router %d\n", a, r.Router.System)
-
-//	block, err := r.BlockFor(a)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return r.Router.ControlPlane.RoutingPathFor(*block)
 }
-
-//func (r *RouterControlPlane) RoutingPathFor(b ipvlw.Block) (RoutingPath, error) {
-//	if path, ok := r.Router.ControlPlane.GetRoutes()[b]; ok {
-//		return path, nil
-//	}
-//	return nil, fmt.Errorf("No routing path found for block %v on router %d\n", b, r.Router.System)
-//}
-//
-//func (r *RouterControlPlane) BlockFor(a ipvlw.Address) (*ipvlw.Block, error) {
-//	for block, _ := range(r.GetRoutes()) {
-//		if block.Contains(a) {
-//			return &block, nil
-//		}
-//	}
-//	return nil, fmt.Errorf("Unable to find block for address %v in router %d\n", a, r.Router.System)
-//}
 
 func (r *RouterControlPlane) routerFor(s System) (Router, error) {
 	if router, ok := r.Interfaces[s]; ok {
@@ -116,7 +84,7 @@ func (r *RouterControlPlane) String() string {
 }
 
 func (r *RouterControlPlane) AddressInUse(a *ipvlw.Address) bool {
-	log.Printf("checking if %v is in %v\n", a, r.Addresses)
+//	log.Printf("checking if %v is in %v\n", a, r.Addresses)
 	if _,ok := r.Addresses[*a]; ok {
 		return true
 	}
@@ -127,7 +95,7 @@ func (r *RouterControlPlane) UnusedAddress() (*ipvlw.Address, error) {
 	for _, block := range(r.LocalBlocks) {
 		for _, addr := range(block.Addresses()) {
 			if ! r.AddressInUse(addr) {
-				log.Printf("returning unused address %v\n", addr)
+//				log.Printf("returning unused address %v\n", addr)
 				return addr, nil
 			}
 		}
@@ -141,6 +109,7 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 	if err != nil {
 		return err
 	}
+	log.Printf("assigning computer %v ip address %d\n", n.MacAddress(), addr)
 	n.rtr(r.Router)
 	n.addr(addr)
 	r.Addresses[*addr] = n
@@ -149,9 +118,9 @@ func (r *RouterControlPlane) AddComputer(n Nic) error {
 }
 
 func (r *RouterControlPlane) AddNic(rtr *Router) error {
-	log.Printf("adding router %v to %v\n", rtr, r.Nics)
+//	log.Printf("adding router %v to %v\n", rtr, r.Nics)
 	r.Nics = append(r.Nics, rtr)
-	log.Printf("added router %v to %v\n", rtr, r.Nics)
+//	log.Printf("added router %v to %v\n", rtr, r.Nics)
 	r.Interfaces[rtr.System] = *rtr
 	return nil
 }
@@ -190,6 +159,9 @@ func (r *RouterControlPlane) AddRoute(rp RoutingPath, b *ipvlw.Block) error {
 		log.Printf("shortest path %v at router %d\n", p, r.Router.System)
 		if localToThisRouter(r, p) {
 			r.LocalBlocks = append(r.LocalBlocks, b)
+		}
+		if pth, ok := r.GetRoutes()[*b]; ok {
+		    log.Printf("replacing path %v with %v on router %d\n", pth, p, r.Router.System.Identifier )
 		}
 		r.Routes[*b] = p
 		for _, neighbor := range(r.Routers()) {

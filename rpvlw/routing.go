@@ -69,6 +69,7 @@ type Nic interface {
 	Address() ipvlw.Address
 	Send(ipvlw.Message) error
 	RegisterCallback(func(n Nic, m ipvlw.Message) error) error
+	MacAddress() string
 }
 
 type Dhcp interface {

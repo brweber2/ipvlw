@@ -9,6 +9,7 @@ type Computer struct {
 	Rtr *Router
 	Addr ipvlw.Address
 	Callback func(Nic, ipvlw.Message) error
+	Mac string
 }
 
 func (c *Computer) addr(a *ipvlw.Address) {
@@ -41,4 +42,8 @@ func (c *Computer) handler() (func(Nic,ipvlw.Message) error, error) {
 		return c.Callback, nil
 	}
 	return nil, fmt.Errorf("No callback registered!\n")
+}
+
+func (c *Computer) MacAddress() string {
+	return c.Mac
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/brweber2/interwebs/rpvlw"
-	"fmt"
 	"log"
 	"github.com/brweber2/interwebs/ipvlw"
 )
@@ -51,27 +50,27 @@ func simulateRouting() {
 	}
 
 	for _, rtr := range(router_1.ControlPlane.Routers()) {
-		log.Printf("router 1 (%d) is connected to %d\n", router_1.System.Identifier, rtr.System.Identifier)
+		log.Printf("router %d is connected to %d\n", router_1.System.Identifier, rtr.System.Identifier)
 	}
 	for _, rtr := range(router_2.ControlPlane.Routers()) {
-		log.Printf("router 2 (%d) is connected to %d\n", router_2.System.Identifier, rtr.System.Identifier)
+		log.Printf("router %d is connected to %d\n", router_2.System.Identifier, rtr.System.Identifier)
 	}
 	for _, rtr := range(router_3.ControlPlane.Routers()) {
-		log.Printf("router 3 (%d) is connected to %d\n", router_3.System.Identifier, rtr.System.Identifier)
+		log.Printf("router %d is connected to %d\n", router_3.System.Identifier, rtr.System.Identifier)
 	}
 	for _, rtr := range(router_4.ControlPlane.Routers()) {
-		log.Printf("router 4 (%d) is connected to %d\n", router_4.System.Identifier, rtr.System.Identifier)
+		log.Printf("router %d is connected to %d\n", router_4.System.Identifier, rtr.System.Identifier)
 	}
 	for _, rtr := range(router_5.ControlPlane.Routers()) {
-		log.Printf("router 5 (%d) is connected to %d\n", router_5.System.Identifier, rtr.System.Identifier)
+		log.Printf("router %d is connected to %d\n", router_5.System.Identifier, rtr.System.Identifier)
 	}
 
 //	fmt.Printf("after routers: %#v %#v %#v %#v %#v\n", router_1, router_2, router_3, router_4, router_5)
-	fmt.Printf("router 1 connected to %d routers\n", len(router_1.ControlPlane.Routers()))
-	fmt.Printf("router 2 connected to %d routers\n", len(router_2.ControlPlane.Routers()))
-	fmt.Printf("router 3 connected to %d routers\n", len(router_3.ControlPlane.Routers()))
-	fmt.Printf("router 4 connected to %d routers\n", len(router_4.ControlPlane.Routers()))
-	fmt.Printf("router 5 connected to %d routers\n", len(router_5.ControlPlane.Routers()))
+//	fmt.Printf("router 1 connected to %d routers\n", len(router_1.ControlPlane.Routers()))
+//	fmt.Printf("router 2 connected to %d routers\n", len(router_2.ControlPlane.Routers()))
+//	fmt.Printf("router 3 connected to %d routers\n", len(router_3.ControlPlane.Routers()))
+//	fmt.Printf("router 4 connected to %d routers\n", len(router_4.ControlPlane.Routers()))
+//	fmt.Printf("router 5 connected to %d routers\n", len(router_5.ControlPlane.Routers()))
 
 	// announce some routes
 	err = router_1.Originate(&ipvlw.Block{ipvlw.Address{4}, 6})
@@ -126,15 +125,15 @@ func simulateRouting() {
 	nic_15 := rpvlw.MakeNic()
 	nic_16 := rpvlw.MakeNic()
 
-	log.Printf("making nics %#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v \n",
-	nic_1, nic_2, nic_3, nic_4, nic_5, nic_6, nic_7, nic_8, nic_9, nic_10, nic_11, nic_12, nic_13,
-	nic_14, nic_15, nic_16)
+//	log.Printf("making nics %#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v,%#v \n",
+//	nic_1, nic_2, nic_3, nic_4, nic_5, nic_6, nic_7, nic_8, nic_9, nic_10, nic_11, nic_12, nic_13,
+//	nic_14, nic_15, nic_16)
 
 	// "dhcp" will assing computers to routers (as if they were physically plugged in there)
 	// and it will assign IPvLW addresses to the network interfaces
 	dhcp := rpvlw.MakeDhcp(router_1, router_2, router_3, router_4, router_5)
 
-	log.Printf("dhcp: %#v\n", dhcp)
+//	log.Printf("dhcp: %#v\n", dhcp)
 
 
 	// plug computers into the network
@@ -143,13 +142,6 @@ func simulateRouting() {
 	dhcp.ConnectTo(router_3, nic_8, nic_9, nic_10)
 	dhcp.ConnectTo(router_4, nic_11, nic_12, nic_13, nic_14)
 	dhcp.ConnectTo(router_5, nic_15, nic_16)
-
-	log.Printf("**** ROUTING TABLES ****\n")
-	router_1.ControlPlane.PrintRoutes()
-	router_2.ControlPlane.PrintRoutes()
-	router_3.ControlPlane.PrintRoutes()
-	router_4.ControlPlane.PrintRoutes()
-	router_5.ControlPlane.PrintRoutes()
 
 	// send a message from computer 2 to computer 4 (same router - stays internal)
 	to := nic_4.Address()
@@ -176,7 +168,7 @@ func simulateRouting() {
 		log.Fatalf("unable to send message: %v\n", err)
 	}
 
-	log.Printf("***** DONE INTERAL *****\n")
+	log.Printf("***** DONE WITH INTERAL ROUTING EXAMPLE *****\n")
 
 	from = nic_1.Address()
 	to = nic_15.Address()
@@ -185,7 +177,12 @@ func simulateRouting() {
 
 	nic_15.RegisterCallback(func(n rpvlw.Nic, m ipvlw.Message) error {
 		log.Printf("nic 15 recieved message %v\n", m)
-		return nil
+		resp, err := ipvlw.MakeResponse(m, "oh did you now?")
+		if err != nil {
+			return err
+		}
+		log.Printf("response message %v\n", resp)
+		return n.Send(resp)
 	})
 
 	err = nic_1.Send(ipvlw.TextMessage{from, to, ipvlw.GenerateId(), "hello world"})
@@ -193,6 +190,7 @@ func simulateRouting() {
 		log.Fatalf("unable to send message from 1 to 15\n")
 	}
 
+	log.Printf("***** DONE WITH INTERAL ROUTING EXAMPLE *****\n")
 	// send a message from computer 2 to computer 15 (different routers - external traffic)
 
 }
